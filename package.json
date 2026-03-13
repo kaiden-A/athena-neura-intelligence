@@ -20,11 +20,17 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@langchain/community": "^1.1.23",
+    "@langchain/core": "^1.1.32",
+    "@langchain/google-genai": "^2.1.25",
+    "@langchain/mongodb": "^1.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/adapter-pg": "^7.4.2",
+    "langchain": "^1.2.32",
+    "mongodb": "^6.8.0",
     "mongoose": "^9.3.0",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
@@ -72,5 +78,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "overrides": {
+    "mongodb": "$mongodb"
   }
 }

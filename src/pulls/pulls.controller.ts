@@ -1,4 +1,11 @@
-import { Controller } from '@nestjs/common';
+import { Controller , Get } from '@nestjs/common';
 
 @Controller('pulls')
-export class PullsController {}
+export class PullsController {
+
+
+    @Get('notion')
+    async pullFromNotion(){
+
+    }
+}
