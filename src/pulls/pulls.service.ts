@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { VectorService } from 'src/vector/vector.service';
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters"
 import { NotionAPILoader } from "@langchain/community/document_loaders/web/notionapi";
+import { Document } from '@langchain/core/documents';
 
 @Injectable()
 export class PullsService {
@@ -19,11 +20,12 @@ export class PullsService {
         const rawDocs = await loader.load();
 
         const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize : 1000,
-            chunkOverlap : 200
+            chunkSize: 1000,
+            chunkOverlap: 250
         });
 
-        const chunks = await splitter.splitDocuments(rawDocs);
+        const chunks: Document[] = await splitter.splitDocuments(rawDocs);
+
 
 
         await this.vectorService.athenaSave(chunks);
