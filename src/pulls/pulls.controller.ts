@@ -1,11 +1,16 @@
-import { Controller , Get } from '@nestjs/common';
+import { Body, Controller , Get, Post } from '@nestjs/common';
+import { NotionDto } from './dto/notion-dto';
+import { PullsService } from './pulls.service';
 
 @Controller('pulls')
 export class PullsController {
 
+    constructor(private readonly pullService : PullsService){}
 
-    @Get('notion')
-    async pullFromNotion(){
-
+    @Post('notion')
+    async pullFromNotion(
+        @Body() data : NotionDto 
+    ){
+        return this.pullService.pullFromNotion(data.pageId);
     }
 }

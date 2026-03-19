@@ -7,12 +7,13 @@ import { PrismaModule } from './prisma/prisma.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { AIGuard } from './ai/ai.guard';
-import { VectorService } from './vector/vector.service';
+import {ConfigModule} from '@nestjs/config';
 import { VectorModule } from './vector/vector.module';
 import { GoogleAiModule } from './google-ai/google-ai.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({isGlobal : true}),
     PullsModule, 
     QuestionsModule, 
     PrismaModule,

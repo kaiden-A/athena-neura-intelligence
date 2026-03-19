@@ -11,7 +11,7 @@ export class AIGuard implements CanActivate {
   ): Promise<boolean>  {
 
     const request = context.switchToHttp().getRequest<Request>()
-    const apiKeys = request.headers['x-api-key'] as string;
+    const apiKeys = request.headers['x-motionu-key'] as string;
 
     if(!apiKeys){
       throw new UnauthorizedException('API keys is missings');

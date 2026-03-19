@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
 import { PullsService } from './pulls.service';
 import { PullsController } from './pulls.controller';
+import { VectorModule } from 'src/vector/vector.module';
 
 @Module({
-  providers: [PullsService],
+  imports : [
+   VectorModule 
+  ],
+  providers: [
+    PullsService
+  ],
   controllers: [PullsController]
 })
 export class PullsModule {}

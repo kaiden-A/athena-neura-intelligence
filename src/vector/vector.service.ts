@@ -6,7 +6,8 @@ import { MongoDBAtlasVectorSearch } from '@langchain/mongodb';
 export class VectorService implements OnModuleInit, OnModuleDestroy {
 
     private client : MongoClient;
-    private vectorStore :  MongoDBAtlasVectorSearch;
+    private athenaStore : MongoDBAtlasVectorSearch;
+    private neuraStore : MongoDBAtlasVectorSearch;
 
     constructor(private readonly googleAiService : GoogleAiService){}
 
@@ -14,24 +15,45 @@ export class VectorService implements OnModuleInit, OnModuleDestroy {
         this.client = new MongoClient(process.env.MONGODB_URI!);
         await this.client.connect();
 
-        const collection = this.client.db("motionu-rag").collection("chunks");
-        this.vectorStore = new MongoDBAtlasVectorSearch(
+
+        const athenaCollection = this.client.db('motionu-rag').collection("athenas");
+        const neuraCollection = this.client.db("motionu-rag").collection("neuras");
+
+        this.athenaStore = new MongoDBAtlasVectorSearch(
             this.googleAiService.getEmbeddingModel(),
             {
-                collection : collection as any,
-                indexName : "vector_index",
+                collection : athenaCollection as any,
+                indexName : "athena_index",
+                textKey : "pageContent",
+                embeddingKey : "embedding"
+            }
+        )
+
+        this.neuraStore = new MongoDBAtlasVectorSearch(
+            this.googleAiService.getEmbeddingModel(),
+            {
+                collection : neuraCollection as any,
+                indexName : "neura_index",
                 textKey : "text",
-                embeddingKey : "embedding",
+                embeddingKey : "embedding"
             }
         )
     }
 
-    async saveDocs(docs : any[]){
-        return await this.vectorStore.addDocuments(docs);
+    async athenaSave(docs : any[]){
+        return await this.athenaStore.addDocuments(docs);
     }
 
-    async search(query : string){
-        return await this.vectorStore.similaritySearch(query , 3);
+    async neuraSave(docs : any[]){
+        return await this.neuraStore.addDocuments(docs);
+    }
+
+    async athenaSearch(query : string , topK : number){
+        return await this.athenaStore.similaritySearch(query , topK);
+    }
+
+    async neuraSearch(query : string , topK : number){
+        return await this.neuraStore.similaritySearch(query , topK);
     }
 
     async onModuleDestroy() {
