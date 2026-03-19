@@ -4,6 +4,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { GoogleAiService } from 'src/google-ai/google-ai.service';
+import { ChatsService } from 'src/chats/chats.service';
 
 @Injectable()
 export class QuestionsService {
@@ -11,7 +12,8 @@ export class QuestionsService {
 
     constructor(
         private readonly vectorService : VectorService,
-        private readonly googleService : GoogleAiService
+        private readonly googleService : GoogleAiService,
+        private readonly chatService : ChatsService
     ){}
 
 
@@ -55,6 +57,8 @@ export class QuestionsService {
             question : question,
             docs : releventDocs
         });
+
+        await this.chatService.saveAthenaChat(question , result , releventDocs);
 
         return {
             answer : result,

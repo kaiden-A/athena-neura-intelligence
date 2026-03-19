@@ -1,63 +1,73 @@
-import { Injectable , OnModuleInit , OnModuleDestroy} from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { GoogleAiService } from 'src/google-ai/google-ai.service';
-import {MongoClient} from 'mongodb'
-import { MongoDBAtlasVectorSearch } from '@langchain/mongodb';
+import { Pool } from 'pg';
+import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
+
 @Injectable()
 export class VectorService implements OnModuleInit, OnModuleDestroy {
 
-    private client : MongoClient;
-    private athenaStore : MongoDBAtlasVectorSearch;
-    private neuraStore : MongoDBAtlasVectorSearch;
+    private pool: Pool;
+    private athenaStore: PGVectorStore;
+    private neuraStore: PGVectorStore;
 
-    constructor(private readonly googleAiService : GoogleAiService){}
+    constructor(
+        private readonly googleAiService: GoogleAiService
+    ) {}
 
     async onModuleInit() {
-        this.client = new MongoClient(process.env.MONGODB_URI!);
-        await this.client.connect();
+        this.pool = new Pool({
+            connectionString: process.env.NEON_DATABASE_URL_RAG,
+            ssl: { rejectUnauthorized: false }
+        });
 
+        const embeddings = this.googleAiService.getEmbeddingModel();
 
-        const athenaCollection = this.client.db('motionu-rag').collection("athenas");
-        const neuraCollection = this.client.db("motionu-rag").collection("neuras");
-
-        this.athenaStore = new MongoDBAtlasVectorSearch(
-            this.googleAiService.getEmbeddingModel(),
+        this.athenaStore = await PGVectorStore.initialize(
+            embeddings,
             {
-                collection : athenaCollection as any,
-                indexName : "athena_index",
-                textKey : "pageContent",
-                embeddingKey : "embedding"
+                pool: this.pool,
+                tableName: 'athena_vectors',
+                columns: {
+                idColumnName: 'id',
+                vectorColumnName: 'embedding',
+                contentColumnName: 'content',
+                metadataColumnName: 'metadata'
+                }
             }
-        )
+        );
 
-        this.neuraStore = new MongoDBAtlasVectorSearch(
-            this.googleAiService.getEmbeddingModel(),
+        this.neuraStore = await PGVectorStore.initialize(
+            embeddings,
             {
-                collection : neuraCollection as any,
-                indexName : "neura_index",
-                textKey : "text",
-                embeddingKey : "embedding"
+                pool: this.pool,
+                tableName: 'neura_vectors',
+                columns: {
+                idColumnName: 'id',
+                vectorColumnName: 'embedding',
+                contentColumnName: 'content',
+                metadataColumnName: 'metadata'
+                }
             }
-        )
+        );
     }
 
-    async athenaSave(docs : any[]){
-        return await this.athenaStore.addDocuments(docs);
+    async athenaSave(docs: any[]) {
+        return this.athenaStore.addDocuments(docs);
     }
 
-    async neuraSave(docs : any[]){
-        return await this.neuraStore.addDocuments(docs);
+    async neuraSave(docs: any[]) {
+        return this.neuraStore.addDocuments(docs);
     }
 
-    async athenaSearch(query : string , topK : number){
-        return await this.athenaStore.similaritySearch(query , topK);
+    async athenaSearch(query: string, topK: number) {
+        return this.athenaStore.similaritySearch(query, topK);
     }
 
-    async neuraSearch(query : string , topK : number){
-        return await this.neuraStore.similaritySearch(query , topK);
+    async neuraSearch(query: string, topK: number) {
+        return this.neuraStore.similaritySearch(query, topK);
     }
 
     async onModuleDestroy() {
-        await this.client.close();
+        await this.pool.end();
     }
-
 }

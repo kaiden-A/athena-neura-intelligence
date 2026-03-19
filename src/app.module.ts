@@ -10,6 +10,7 @@ import { AIGuard } from './ai/ai.guard';
 import {ConfigModule} from '@nestjs/config';
 import { VectorModule } from './vector/vector.module';
 import { GoogleAiModule } from './google-ai/google-ai.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { GoogleAiModule } from './google-ai/google-ai.module';
     PrismaModule,
     MongooseModule.forRoot('mongodb://localhost:27017/motionu-rag'),
     VectorModule,
-    GoogleAiModule
+    GoogleAiModule,
+    ChatsModule
   ],
   controllers: [AppController],
   providers: [
