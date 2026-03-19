@@ -2,30 +2,27 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { GoogleAiService } from 'src/google-ai/google-ai.service';
 import { Pool } from 'pg';
 import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
+import { NeonService } from 'src/neon/neon.service';
 
 @Injectable()
-export class VectorService implements OnModuleInit, OnModuleDestroy {
+export class VectorService implements OnModuleInit{
 
-    private pool: Pool;
     private athenaStore: PGVectorStore;
     private neuraStore: PGVectorStore;
 
     constructor(
-        private readonly googleAiService: GoogleAiService
+        private readonly googleAiService: GoogleAiService,
+        private readonly neonService : NeonService
     ) {}
 
     async onModuleInit() {
-        this.pool = new Pool({
-            connectionString: process.env.NEON_DATABASE_URL_RAG,
-            ssl: { rejectUnauthorized: false }
-        });
 
         const embeddings = this.googleAiService.getEmbeddingModel();
 
         this.athenaStore = await PGVectorStore.initialize(
             embeddings,
             {
-                pool: this.pool,
+                pool: this.neonService.pool,
                 tableName: 'athena_vectors',
                 columns: {
                 idColumnName: 'id',
@@ -39,7 +36,7 @@ export class VectorService implements OnModuleInit, OnModuleDestroy {
         this.neuraStore = await PGVectorStore.initialize(
             embeddings,
             {
-                pool: this.pool,
+                pool: this.neonService.pool,
                 tableName: 'neura_vectors',
                 columns: {
                 idColumnName: 'id',
@@ -67,7 +64,4 @@ export class VectorService implements OnModuleInit, OnModuleDestroy {
         return this.neuraStore.similaritySearch(query, topK);
     }
 
-    async onModuleDestroy() {
-        await this.pool.end();
-    }
 }

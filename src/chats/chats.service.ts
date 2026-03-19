@@ -1,16 +1,12 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Pool } from 'pg';
+import { NeonService } from 'src/neon/neon.service';
 
 @Injectable()
-export class ChatsService implements OnModuleInit, OnModuleDestroy {
-    private pool: Pool;
+export class ChatsService {
+    
+    constructor(private readonly neonService : NeonService){}
 
-    async onModuleInit() {
-        this.pool = new Pool({
-            connectionString: process.env.NEON_DATABASE_URL_RAG,
-            ssl: { rejectUnauthorized: false },
-        });
-    }
 
     async saveAthenaChat(userQuestion: string, aiAnswer: string, sources: any[]) {
         const query = `
@@ -19,7 +15,7 @@ export class ChatsService implements OnModuleInit, OnModuleDestroy {
             RETURNING *;
         `;
         const values = [userQuestion, aiAnswer, JSON.stringify(sources)];
-        const res = await this.pool.query(query, values);
+        const res = await this.neonService.pool.query(query, values);
         return res.rows[0];
     }
 
@@ -29,11 +25,8 @@ export class ChatsService implements OnModuleInit, OnModuleDestroy {
             ORDER BY created_at DESC
             LIMIT $1;
         `;
-        const res = await this.pool.query(query, [limit]);
+        const res = await this.neonService.pool.query(query, [limit]);
         return res.rows;
     }
 
-    async onModuleDestroy() {
-        await this.pool.end();
-    }
 }

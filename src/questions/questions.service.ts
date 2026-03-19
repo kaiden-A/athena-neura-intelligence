@@ -5,29 +5,30 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { GoogleAiService } from 'src/google-ai/google-ai.service';
 import { ChatsService } from 'src/chats/chats.service';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class QuestionsService {
 
+    private athenaTemplate : string;
 
     constructor(
         private readonly vectorService : VectorService,
         private readonly googleService : GoogleAiService,
         private readonly chatService : ChatsService
-    ){}
+    ){
+
+        const filePath = join(process.cwd(), 'src', 'prompts', 'athena-persona.md');
+        this.athenaTemplate = readFileSync(filePath, 'utf-8');
+    }
 
 
     async askAthena(question : string , topK : number){
 
         const releventDocs = await this.vectorService.athenaSearch(question ,topK );
 
-        const template = `
-            You are an AI assistant name ATHENA for the MOTION-U club.
-            You alongside with Neura your sister you are task to help
-            people nevigate around MOTION-U 
-            Use the following pieces of retrieved context to answer the question. 
-            If you don't know the answer, just say that you don't know. 
-            Use three sentences maximum and keep the answer concise.
+        const template =  this.athenaTemplate + `
 
             Context: {context}
             Question: {question}
