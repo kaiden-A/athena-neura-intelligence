@@ -10,7 +10,7 @@ export class PullsService {
     constructor(private readonly vectorService : VectorService){}
 
 
-    async pullFromNotion(pageId : string){
+    async pullFromNotion(pageId : string , type : string){
 
         const loader = new NotionAPILoader({
             clientOptions : {auth : process.env.NOTION_TOKEN},
@@ -24,9 +24,13 @@ export class PullsService {
             chunkOverlap: 250
         });
 
-        const chunks: Document[] = await splitter.splitDocuments(rawDocs);
+        let chunks : Document[];
 
-
+        if(type === "chart_org"){
+            chunks = rawDocs;
+        }else{
+            chunks = await splitter.splitDocuments(rawDocs);
+        }
 
         await this.vectorService.athenaSave(chunks);
 

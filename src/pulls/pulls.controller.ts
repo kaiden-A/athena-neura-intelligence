@@ -11,6 +11,6 @@ export class PullsController {
     async pullFromNotion(
         @Body() data : NotionDto 
     ){
-        return this.pullService.pullFromNotion(data.pageId);
+        return this.pullService.pullFromNotion(data.pageId , data.type);
     }
 }

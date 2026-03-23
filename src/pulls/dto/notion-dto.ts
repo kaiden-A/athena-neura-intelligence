@@ -1,5 +1,7 @@
 
 export class NotionDto{
 
-    pageId : string
+    pageId : string;
+
+    type : string;
 }
