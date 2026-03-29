@@ -11,6 +11,9 @@ import { VectorModule } from './vector/vector.module';
 import { GoogleAiModule } from './google-ai/google-ai.module';
 import { ChatsModule } from './chats/chats.module';
 import { NeonModule } from './neon/neon.module';
+import { QaModule } from './qa/qa.module';
+import { MetadataModule } from './metadata/metadata.module';
+import { TopicsModule } from './topics/topics.module';
 
 @Module({
   imports: [
@@ -21,7 +24,10 @@ import { NeonModule } from './neon/neon.module';
     VectorModule,
     GoogleAiModule,
     ChatsModule,
-    NeonModule
+    NeonModule,
+    QaModule,
+    MetadataModule,
+    TopicsModule
   ],
   controllers: [AppController],
   providers: [

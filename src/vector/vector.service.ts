@@ -25,10 +25,10 @@ export class VectorService implements OnModuleInit{
                 pool: this.neonService.pool,
                 tableName: 'athena_vectors',
                 columns: {
-                idColumnName: 'id',
-                vectorColumnName: 'embedding',
-                contentColumnName: 'content',
-                metadataColumnName: 'metadata'
+                    idColumnName: 'id',
+                    vectorColumnName: 'embedding',
+                    contentColumnName: 'content',
+                    metadataColumnName: 'metadata'
                 }
             }
         );
@@ -39,10 +39,10 @@ export class VectorService implements OnModuleInit{
                 pool: this.neonService.pool,
                 tableName: 'neura_vectors',
                 columns: {
-                idColumnName: 'id',
-                vectorColumnName: 'embedding',
-                contentColumnName: 'content',
-                metadataColumnName: 'metadata'
+                    idColumnName: 'id',
+                    vectorColumnName: 'embedding',
+                    contentColumnName: 'content',
+                    metadataColumnName: 'metadata'
                 }
             }
         );
