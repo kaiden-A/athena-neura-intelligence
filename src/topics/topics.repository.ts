@@ -8,12 +8,18 @@ export class TopicsRepository{
 
     constructor(private readonly neonService : NeonService){}
 
-    async create(name : string , description : string){
+    async create(params : {
+        name : string ; 
+        description : string ; 
+        createdBy : string
+    }){
 
+        const {name , description , createdBy} = params;        
+        
         const query = `
-            INSERT INTO TOPICS(name , description) VALUES ($1 , $2)
+            INSERT INTO TOPICS(name , description , created_by) VALUES ($1 , $2)
         `;
-        const values = [name , description];
+        const values = [name , description , createdBy];
 
         const res = await this.neonService.pool.query(query , values);
         return  res[0];

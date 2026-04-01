@@ -23,7 +23,7 @@ export class MetadataService {
     constructor(
         private readonly googleAi : GoogleAiService
     ){
-        const filePath = join(process.cwd(), 'src', 'prompts', 'generate-metadat.md');
+        const filePath = join(process.cwd(), 'src', 'prompts', 'generate-metadata.md');
         this.metadataTemp = readFileSync(filePath , 'utf-8');
     }
 

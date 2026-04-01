@@ -7,8 +7,19 @@ export class TopicsService {
     constructor(private readonly topicRepo : TopicsRepository){}
 
 
-    async createTopic(name : string , description : string){
-        return this.topicRepo.create(name , description);
+    async createTopic(params : {
+        name : string,
+        description : string,
+        userId : string
+    }){
+
+        const {name , description , userId} = params;
+
+        return this.topicRepo.create({
+            name : name,
+            description : description,
+            createdBy : userId
+        })
     }
 
 }
