@@ -16,7 +16,7 @@ export class QaRepository{
             VALUES ( $1 , $2 , $3 , $4 , $5 , $6)
         `;
 
-        const values = [data.topicId , data.question , data.answer , data.visiblity , data.answer];
+        const values = [data.topicId , data.question , data.answer , data.visibility , data.assistant , data.createdBy];
         const res = await this.neonService.pool.query(query , values);
 
         return res[0];

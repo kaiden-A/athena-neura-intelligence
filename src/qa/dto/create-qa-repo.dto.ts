@@ -2,12 +2,12 @@
 
 export class CreateQaRepo{
     
-    topicId : string;
-    question : string;
-    answer : string;
+    topicId! : string;
+    question! : string;
+    answer! : string;
 
-    visiblity : string;
-    assistant : string;
+    visibility! : string;
+    assistant! : string;
 
-    createdBy : string;
+    createdBy! : string;
 }

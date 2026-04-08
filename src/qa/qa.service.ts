@@ -47,7 +47,7 @@ export class QaService {
                 topicId : topicId,
                 question : question,
                 answer : answer,
-                visiblity : visibility,
+                visibility : visibility,
                 assistant : visibility === 'public'? 'athena' : 'neura',
                 createdBy : createdBy
             })
