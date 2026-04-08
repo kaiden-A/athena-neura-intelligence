@@ -15,11 +15,16 @@ export class TopicsService {
 
         const {name , description , userId} = params;
 
-        return this.topicRepo.create({
+        const data = await this.topicRepo.create({
             name : name,
             description : description,
             createdBy : userId
         })
+
+        return { 
+            success : true,
+            data : data
+        }
     }
 
 }

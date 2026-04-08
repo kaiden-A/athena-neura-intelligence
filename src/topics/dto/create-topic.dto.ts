@@ -2,6 +2,6 @@
 
 export class CreateTopicDto {
     
-    name : string;
-    description : string;
+    name! : string;
+    description! : string;
 }

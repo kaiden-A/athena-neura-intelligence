@@ -7,8 +7,8 @@ import { NeonService } from 'src/neon/neon.service';
 @Injectable()
 export class VectorService implements OnModuleInit{
 
-    private athenaStore: PGVectorStore;
-    private neuraStore: PGVectorStore;
+    private athenaStore!: PGVectorStore;
+    private neuraStore! : PGVectorStore;
 
     constructor(
         private readonly googleAiService: GoogleAiService,

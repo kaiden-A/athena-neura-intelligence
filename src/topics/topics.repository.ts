@@ -17,7 +17,7 @@ export class TopicsRepository{
         const {name , description , createdBy} = params;        
         
         const query = `
-            INSERT INTO TOPICS(name , description , created_by) VALUES ($1 , $2)
+            INSERT INTO TOPICS(name , description , created_by) VALUES ($1 , $2 , $3)
         `;
         const values = [name , description , createdBy];
 

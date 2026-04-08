@@ -9,10 +9,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
         PrismaModule,
         ConfigModule.forRoot({isGlobal : true}),
         JwtModule.registerAsync({
+        global : true,
         imports: [ConfigModule],
         inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
-                global : true,
                 secret: config.getOrThrow('JWT_SECRET'),
                 signOptions: { expiresIn: '1d' },
             }),
