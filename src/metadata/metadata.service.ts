@@ -27,7 +27,7 @@ export class MetadataService {
         this.metadataTemp = readFileSync(filePath , 'utf-8');
     }
 
-    async generateMetadata(question : string , answer : string){
+    async generateMetadata(topics :  string , question : string , answer : string){
 
         try{
 
@@ -38,6 +38,7 @@ export class MetadataService {
                 {systemInstruction}
 
                 ##INPUT DATA:
+                    -Topic : {topics}
                     -Questions : {questions}
                     -Answer : {answers}
 
@@ -51,6 +52,7 @@ export class MetadataService {
 
             const result = await chain.invoke({
                 systemInstruction : this.metadataTemp,
+                topics : topics,
                 questions : question,
                 answers : answer
             })

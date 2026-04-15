@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { MetadataService } from 'src/metadata/metadata.service';
 import { VectorService } from 'src/vector/vector.service';
 import { QaRepository } from './qa.respository';
+import { TopicsService } from 'src/topics/topics.service';
 
 @Injectable()
 export class QaService {
@@ -11,7 +12,8 @@ export class QaService {
     constructor(
         private readonly metadataService : MetadataService,
         private readonly vectorService : VectorService,
-        private readonly qaRepository : QaRepository
+        private readonly qaRepository : QaRepository,
+        private readonly topicService : TopicsService
     ){}
 
     async storedQuestionAnswer(params : {
@@ -23,8 +25,10 @@ export class QaService {
     }){
 
         const {question , answer , topicId , visibility, createdBy} = params;
+
+        const topicName = await this.topicService.findTopicById(topicId);
         
-        const metadata = await this.metadataService.generateMetadata(question , answer);
+        const metadata = await this.metadataService.generateMetadata(topicName , question , answer);
 
         const doc = new Document({
             pageContent : `question: ${question}\nanswer: ${answer}`,

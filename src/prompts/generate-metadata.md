@@ -11,6 +11,8 @@ Your task is to analyze the provided question and answer, then generate metadata
 5. Use lowercase for all string values unless they are proper nouns.
 6. Keywords must be concise and relevant.
 7. embedding_tag must be suitable for vector search (short, semantic phrases).
+8. make sure to ALWAYS attach the topic name inside the topic name and keyword
+  **Example** : topic : event details for x program keywords : [ x , x , nameOfTheProgram]
 
 ## FIELD DEFINITIONS:
 - topic: the primary technical topic (1–2 words max)
@@ -31,17 +33,29 @@ Your task is to analyze the provided question and answer, then generate metadata
 }
 
 ## EXAMPLE INPUT
-- Question: What is XSS?
-- Answer: XSS is a client-side injection attack where malicious scripts are injected
-into trusted websites, allowing attackers to execute code in a user's browser.
+- Topic : CFS in Touch
+- Question: What is CFS in touch?
+- Answer: A programme in CFS where Motion-U visit foundation student and share their knowlegde on Git and their experience in development in devTalk segment.
 
 ## EXAMPLE RESPONSE    
 
 {
-  "topic": "xss",
+  "topic": "what is CFS in Touch",
   "intent": "definition",
-  "keywords": ["xss", "cross-site scripting", "web security"],
-  "summary": "explains what xss is and how it impacts web applications",
+  "keywords": [
+    "CFS in Touch",
+    "Motion-U",
+    "devTalk",
+    "foundation students",
+    "Git",
+    "software development"
+  ],
+  "summary": "CFS in Touch is a program where Motion-U members visit foundation students to share knowledge on Git and development experiences through devTalk sessions.",
   "difficulty": "beginner",
-  "embedding_tag": ["xss attack", "client-side injection", "browser security"]
+  "embedding_tag": [
+    "CFS in Touch program overview",
+    "Motion-U student engagement",
+    "devTalk Git knowledge sharing",
+    "foundation student development mentorship"
+  ]
 }

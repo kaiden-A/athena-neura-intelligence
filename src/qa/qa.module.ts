@@ -6,9 +6,10 @@ import { QaRepository } from './qa.respository';
 import { NeonModule } from 'src/neon/neon.module';
 import { VectorModule } from 'src/vector/vector.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { TopicsModule } from 'src/topics/topics.module';
 
 @Module({
-  imports : [MetadataModule , NeonModule , VectorModule , AuthModule],
+  imports : [MetadataModule , NeonModule , VectorModule , AuthModule, TopicsModule],
   providers: [
     QaService , 
     QaRepository

@@ -24,4 +24,18 @@ export class TopicsRepository{
         const res = await this.neonService.pool.query(query , values);
         return  res[0];
     }
+
+    async findById(id : string){
+
+        const query = `
+            SELECT 
+                name
+            FROM TOPICS
+            WHERE id = $1
+        `
+
+        const values = [id];
+        const res = await this.neonService.pool.query(query , values);
+        return res[0];
+    }
 }

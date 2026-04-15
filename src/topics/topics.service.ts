@@ -27,4 +27,10 @@ export class TopicsService {
         }
     }
 
+    async findTopicById(id : string){
+
+        const topic = await this.topicRepo.findById(id);
+        return topic;
+    }
+
 }

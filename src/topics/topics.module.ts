@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
     TopicsRepository,
     AuthGuard
   ],
-  controllers: [TopicsController]
+  controllers: [TopicsController],
+  exports : [TopicsService]
 })
 export class TopicsModule {}
