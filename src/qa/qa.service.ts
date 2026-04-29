@@ -31,12 +31,15 @@ export class QaService {
         const metadata = await this.metadataService.generateMetadata(topicName , question , answer);
 
         const doc = new Document({
-            pageContent : `question: ${question}\nanswer: ${answer}`,
-            metadata : {
+            // ONLY the question goes here for embedding accuracy
+            pageContent: question, 
+            metadata: {
                 ...metadata,
-                original_question : question,
-                original_answer : answer,
-                created_at : new Date().toISOString()
+                original_question: question,
+                original_answer: answer, 
+                full_content: `question: ${question}\nanswer: ${answer}`, // Optional: for easy display
+                created_at: new Date().toISOString(),
+                visibility: visibility,
             }
         });
 

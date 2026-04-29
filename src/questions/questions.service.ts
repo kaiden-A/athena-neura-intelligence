@@ -26,7 +26,7 @@ export class QuestionsService {
 
     async askAthena(question : string , topK : number){
 
-        const releventDocs = await this.vectorService.athenaSearch(question ,topK );
+        const releventDocs = await this.vectorService.hybridSearch(question , topK);
 
         const template =  this.athenaTemplate + `
 
