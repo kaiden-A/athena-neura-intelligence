@@ -27,12 +27,13 @@ export class QaService {
         const {question , answer , topicId , visibility, createdBy} = params;
 
         const topicName = await this.topicService.findTopicById(topicId);
-        
+        const contextPrefix = `Program/Organization: Motion-U\nTopic: ${topicName}\n`;
+
         const metadata = await this.metadataService.generateMetadata(topicName , question , answer);
 
         const doc = new Document({
             // ONLY the question goes here for embedding accuracy
-            pageContent: question, 
+            pageContent: `${contextPrefix}\nQuestion: ${question}\nAnswer: ${answer}`, 
             metadata: {
                 ...metadata,
                 original_question: question,

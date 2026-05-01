@@ -36,6 +36,6 @@ export class TopicsRepository{
 
         const values = [id];
         const res = await this.neonService.pool.query(query , values);
-        return res[0];
+        return res.rows[0].name;
     }
 }
