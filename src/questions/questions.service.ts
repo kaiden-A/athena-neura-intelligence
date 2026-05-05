@@ -7,28 +7,32 @@ import { GoogleAiService } from 'src/google-ai/google-ai.service';
 import { ChatsService } from 'src/chats/chats.service';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-
+import { z } from "zod";
+import { StructuredOutputParser } from "@langchain/core/output_parsers";
 @Injectable()
 export class QuestionsService {
 
-    private athenaTemplate : string;
+    private athenaTemplate: string;
+    private robloxAthenaTemplate: string;
 
     constructor(
-        private readonly vectorService : VectorService,
-        private readonly googleService : GoogleAiService,
-        private readonly chatService : ChatsService
-    ){
+        private readonly vectorService: VectorService,
+        private readonly googleService: GoogleAiService,
+        private readonly chatService: ChatsService
+    ) {
 
         const filePath = join(process.cwd(), 'src', 'prompts', 'athena-persona.md');
         this.athenaTemplate = readFileSync(filePath, 'utf-8');
+        const robloxContextfilePath = join(process.cwd(), 'src', 'prompts', 'roblox-athena-persona.md');
+        this.robloxAthenaTemplate = readFileSync(robloxContextfilePath, 'utf-8');
     }
 
 
-    async askAthena(question : string , topK : number){
+    async askAthena(question: string, topK: number) {
 
-        const releventDocs = await this.vectorService.hybridSearch(question , topK);
+        const releventDocs = await this.vectorService.hybridSearch(question, topK);
 
-        const template =  this.athenaTemplate + `
+        const template = this.athenaTemplate + `
 
             Context: {context}
             Question: {question}
@@ -41,30 +45,89 @@ export class QuestionsService {
 
         const chain = RunnableSequence.from([
             {
-                
-                context: (input: { docs: any[]; question: string }) => 
+
+                context: (input: { docs: any[]; question: string }) =>
                     input.docs.map(doc => doc.pageContent || doc.text).join("\n\n"),
 
-                
+
                 question: (input: { docs: any[]; question: string }) => input.question,
             },
-                
+
             customPrompt,
             model,
             new StringOutputParser()
         ])
 
         const result = await chain.invoke({
-            question : question,
-            docs : releventDocs
+            question: question,
+            docs: releventDocs
         });
 
-        await this.chatService.saveAthenaChat(question , result , releventDocs);
+        await this.chatService.saveAthenaChat(question, result, releventDocs);
 
         return {
-            answer : result,
-            sources : releventDocs.map(doc => doc.metadata?.source) || 'ATHENA-GUIDE'
+            answer: result,
+            sources: releventDocs.map(doc => doc.metadata?.source) || 'ATHENA-GUIDE'
         }
+    }
+
+    async askRobloxAthena(question: string, topK: number, availableEmotes: string[]) {
+        const releventDocs = await this.vectorService.hybridSearch(question, topK);
+
+        // Ensure we have at least one fallback emote to prevent Zod crashes
+        const safeEmotes = availableEmotes && availableEmotes.length > 0
+            ? availableEmotes
+            : ["IDLE"];
+
+        // 1. Define the dynamic schema
+        const parser = StructuredOutputParser.fromZodSchema(
+            z.object({
+                answer: z.string().describe("The conversational response for the Roblox chat bubble. Must be under 2 sentences and contain NO markdown."),
+                // Force Zod to accept our dynamic array as an enum
+                emote: z.enum(safeEmotes as [string, ...string[]])
+                    .describe("The physical action Athena should perform. You MUST choose strictly from this provided list.")
+            })
+        );
+
+        // 2. Inject the format instructions into the template
+        const template = this.robloxAthenaTemplate + `
+        You are physically standing in front of the user in a 3D world. Speak conversationally as if talking face-to-face.
+
+        Context: {context}
+        Question: {question}
+
+        {format_instructions}
+    `;
+
+        const customPrompt = PromptTemplate.fromTemplate(template);
+        const model = this.googleService.getLlm();
+
+        // 3. Build the chain
+        const chain = RunnableSequence.from([
+            {
+                context: (input: { docs: any[]; question: string }) =>
+                    input.docs.map(doc => doc.pageContent || doc.text).join("\n\n"),
+                question: (input: { docs: any[]; question: string }) => input.question,
+                format_instructions: () => parser.getFormatInstructions(),
+            },
+            customPrompt,
+            model,
+            parser
+        ]);
+
+        // 4. Invoke the chain
+        const result = await chain.invoke({
+            question: question,
+            docs: releventDocs
+        });
+
+        await this.chatService.saveAthenaChat(question, result.answer, releventDocs);
+
+        return {
+            answer: result.answer,
+            emote: result.emote,
+            sources: releventDocs.map(doc => doc.metadata?.source) || ['ATHENA-GUIDE']
+        };
     }
 
 }
