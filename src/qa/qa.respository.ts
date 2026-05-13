@@ -14,12 +14,25 @@ export class QaRepository{
         const query = `
             INSERT INTO qa (topic_id , question , answer , visibility , assistant , created_by) 
             VALUES ( $1 , $2 , $3 , $4 , $5 , $6)
+            RETURNING *
         `;
 
         const values = [data.topicId , data.question , data.answer , data.visibility , data.assistant , data.createdBy];
         const res = await this.neonService.pool.query(query , values);
 
-        return res[0];
+        return res.rows[0];
+    }
+
+    async getAll(){
+
+        const query = `
+            SELECT *
+            FROM qa
+        `;
+
+        const res = await this.neonService.pool.query(query);
+        return res.rows;
+
     }
 
 }

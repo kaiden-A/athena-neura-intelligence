@@ -26,6 +26,16 @@ export class QaService {
 
         const {question , answer , topicId , visibility, createdBy} = params;
 
+
+        const sqlRecord = await this.qaRepository.create({
+            topicId : topicId,
+            question : question,
+            answer : answer,
+            visibility : visibility,
+            assistant : visibility === 'public'? 'athena' : 'neura',
+            createdBy : createdBy
+        })
+
         const topicName = await this.topicService.findTopicById(topicId);
         const contextPrefix = `Program/Organization: Motion-U\nTopic: ${topicName}\n`;
 
@@ -36,9 +46,9 @@ export class QaService {
             pageContent: `${contextPrefix}\nQuestion: ${question}\nAnswer: ${answer}`, 
             metadata: {
                 ...metadata,
+                sql_id : sqlRecord.id,
                 original_question: question,
                 original_answer: answer, 
-                full_content: `question: ${question}\nanswer: ${answer}`, // Optional: for easy display
                 created_at: new Date().toISOString(),
                 visibility: visibility,
             }
@@ -47,21 +57,15 @@ export class QaService {
         try{
 
             if(visibility === 'public'){
-                await this.vectorService.athenaSave([doc]);
+                await this.vectorService.athenaSave([doc] , [String(sqlRecord.id)]);
+            }else{
+                await this.vectorService.neuraSave([doc] , [String(sqlRecord.id)])
             }
-            
-
-            await this.qaRepository.create({
-                topicId : topicId,
-                question : question,
-                answer : answer,
-                visibility : visibility,
-                assistant : visibility === 'public'? 'athena' : 'neura',
-                createdBy : createdBy
-            })
+        
 
             return { 
                 status : 'success',
+                id :  sqlRecord.id,
                 message : 'QA has been save to vector db'
             }
 
@@ -70,6 +74,10 @@ export class QaService {
             throw error;
         }
         
+    }
+
+    async getQuestionAnswer(){
+        return this.qaRepository.getAll();
     }
 
 }

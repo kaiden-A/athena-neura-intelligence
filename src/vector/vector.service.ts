@@ -60,12 +60,16 @@ export class VectorService implements OnModuleInit{
         );
     }
 
-    async athenaSave(docs: any[]) {
-        return this.athenaStore.addDocuments(docs);
+    async athenaSave(docs: any[] , ids? : string[]) {
+        return this.athenaStore.addDocuments(docs , {ids});
     }
 
-    async neuraSave(docs: any[]) {
-        return this.neuraStore.addDocuments(docs);
+    async deleteFromAthena(id : string){
+        await this.athenaStore.delete({ids : [id]});
+    }
+
+    async neuraSave(docs: any[] , ids? : string[]) {
+        return this.neuraStore.addDocuments(docs , {ids});
     }
 
     async athenaSearch(query: string, topK: number) {

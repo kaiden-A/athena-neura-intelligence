@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards , Body , Req } from '@nestjs/common';
+import { Controller, Post, UseGuards , Body , Req, Get } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import type { Request } from 'express';
 import { qaDto } from './dto/create-qa-controller.dto';
@@ -26,6 +26,13 @@ export class QaController {
             visibility : data.visibility,
             createdBy : user.id
         })
+    }
+
+    @Get()
+    async getQa(
+
+    ){
+        return this.qaService.getQuestionAnswer();
     }
 
 }
