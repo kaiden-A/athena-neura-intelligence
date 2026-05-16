@@ -8,6 +8,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { IlmuchatService } from 'src/ilmuchat/ilmuchat.service';
 
 
 
@@ -20,6 +21,7 @@ export class VectorService implements OnModuleInit{
 
     constructor(
         private readonly googleAiService: GoogleAiService,
+        private readonly ilmuService : IlmuchatService,
         private readonly neonService : NeonService
     ) {
 
@@ -135,10 +137,11 @@ export class VectorService implements OnModuleInit{
     async analyzeQuery(query: string){
 
         const analysisPrompt = PromptTemplate.fromTemplate(this.queryAnalysePrompt);
-        const model = this.googleAiService.getLlm();
+        const geminiModel = this.googleAiService.getLlm();
+        const ilmuModel = this.ilmuService.getLlm();
 
         const chain = analysisPrompt
-            .pipe(model)
+            .pipe(ilmuModel)
             .pipe(new StringOutputParser());
 
         const response = await chain.invoke({ query });

@@ -9,6 +9,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { z } from "zod";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
+import { IlmuchatService } from 'src/ilmuchat/ilmuchat.service';
 @Injectable()
 export class QuestionsService {
 
@@ -18,7 +19,8 @@ export class QuestionsService {
     constructor(
         private readonly vectorService: VectorService,
         private readonly googleService: GoogleAiService,
-        private readonly chatService: ChatsService
+        private readonly chatService: ChatsService,
+        private readonly ilmuChatService : IlmuchatService
     ) {
 
         const filePath = join(process.cwd(), 'src', 'prompts', 'athena-persona.md');
@@ -41,7 +43,8 @@ export class QuestionsService {
         `;
 
         const customPrompt = PromptTemplate.fromTemplate(template);
-        const model = this.googleService.getLlm();
+        const geminiModel = this.googleService.getLlm();
+        const ilmuModel = this.ilmuChatService.getLlm();
 
         const chain = RunnableSequence.from([
             {
@@ -54,7 +57,7 @@ export class QuestionsService {
             },
 
             customPrompt,
-            model,
+            ilmuModel,
             new StringOutputParser()
         ])
 

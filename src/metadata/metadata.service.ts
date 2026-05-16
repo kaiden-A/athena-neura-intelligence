@@ -4,6 +4,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { GoogleAiService } from 'src/google-ai/google-ai.service';
+import { IlmuchatService } from 'src/ilmuchat/ilmuchat.service';
 
 
 interface MetadataOutput {
@@ -21,7 +22,8 @@ export class MetadataService {
     private metadataTemp : string;
 
     constructor(
-        private readonly googleAi : GoogleAiService
+        private readonly googleAi : GoogleAiService,
+        private readonly ilmuAi : IlmuchatService
     ){
         const filePath = join(process.cwd(), 'src', 'prompts', 'generate-metadata.md');
         this.metadataTemp = readFileSync(filePath , 'utf-8');
@@ -31,7 +33,8 @@ export class MetadataService {
 
         try{
 
-            const llm = this.googleAi.getLlm();
+            const googleLlm = this.googleAi.getLlm();
+            const ilmuLlm = this.ilmuAi.getLlm();
 
             const prompt = PromptTemplate.fromTemplate(
                 `
@@ -47,7 +50,7 @@ export class MetadataService {
             )
 
             const parser = new JsonOutputParser<MetadataOutput>();
-            const chain = prompt.pipe(llm).pipe(parser);
+            const chain = prompt.pipe(ilmuLlm).pipe(parser);
 
 
             const result = await chain.invoke({

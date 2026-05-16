@@ -13,6 +13,7 @@ import { QaModule } from './qa/qa.module';
 import { MetadataModule } from './metadata/metadata.module';
 import { TopicsModule } from './topics/topics.module';
 import { AuthModule } from './auth/auth.module';
+import { IlmuchatModule } from './ilmuchat/ilmuchat.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { AuthModule } from './auth/auth.module';
     MetadataModule,
     TopicsModule,
     AuthModule,
+    IlmuchatModule,
   ],
   controllers: [AppController],
   providers: [
