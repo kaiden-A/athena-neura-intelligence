@@ -16,6 +16,11 @@ export class QaService {
         private readonly topicService : TopicsService
     ){}
 
+    async deleteQa(id : string){
+
+        
+    }
+
     async storedQuestionAnswer(params : {
         topicId : string,
         question : string,
