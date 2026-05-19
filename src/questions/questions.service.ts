@@ -47,13 +47,12 @@ export class QuestionsService {
         const {question , history , topK} = params;
 
         let queryOptimize = question;
-        console.log('question : ' + queryOptimize);
 
         if(history.trim() !== ""){
             queryOptimize = await this.queryOptimizer(history , question);
         }
 
-        console.log('question after optimize: ' + queryOptimize);
+        
         const releventDocs = await this.vectorService.hybridSearch(queryOptimize, topK);
 
         const result = await this.finalResponse(question , releventDocs);
