@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export class IlmuchatService {
 
     private readonly model : ChatGoogleGenerativeAI;
+    private readonly lightModel : ChatGoogleGenerativeAI;
 
     constructor(private configService : ConfigService){
         
@@ -15,10 +16,21 @@ export class IlmuchatService {
             temperature : 0.3,
             baseUrl : 'https://api.ilmu.ai/gemini'
         })
+
+        this.lightModel = new ChatGoogleGenerativeAI({
+            apiKey : this.configService.get('ILMU_API_KEY'),
+            model : 'ilmu-nemo-nano',
+            temperature : 0.2,
+            baseUrl : 'https://api.ilmu.ai/gemini'
+        })
     }
 
     getLlm(){
         return this.model
+    }
+
+    getLightLlm(){
+        return this.lightModel
     }
 
 }

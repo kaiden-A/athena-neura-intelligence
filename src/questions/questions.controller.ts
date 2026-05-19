@@ -13,7 +13,11 @@ export class QuestionsController {
     async askAthena(
         @Body() data: AthenaQuestionsDto
     ) {
-        return this.questionService.askAthena(data.question, data.top_k);
+        return this.questionService.askAthena({
+            question : data.question,
+            history : data.history,
+            topK : data.top_k
+        });
     }
 
     @UseGuards(AIGuard)

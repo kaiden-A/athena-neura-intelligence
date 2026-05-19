@@ -10,11 +10,19 @@ import { join } from 'path';
 import { z } from "zod";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { IlmuchatService } from 'src/ilmuchat/ilmuchat.service';
+
+interface AthenaParams {
+    question : string,
+    history : string,
+    topK : number
+}
+
 @Injectable()
 export class QuestionsService {
 
     private athenaTemplate: string;
     private robloxAthenaTemplate: string;
+    private queryOptimizerTemplate : string;
 
     constructor(
         private readonly vectorService: VectorService,
@@ -23,26 +31,85 @@ export class QuestionsService {
         private readonly ilmuChatService : IlmuchatService
     ) {
 
+
         const filePath = join(process.cwd(), 'src', 'prompts', 'athena-persona.md');
         this.athenaTemplate = readFileSync(filePath, 'utf-8');
+
+        const queryOptimizerPath = join(process.cwd() , 'src' , 'prompts' , 'query-optimizer.md');
+        this.queryOptimizerTemplate = readFileSync(queryOptimizerPath , 'utf-8');
+
         const robloxContextfilePath = join(process.cwd(), 'src', 'prompts', 'roblox-athena-persona.md');
         this.robloxAthenaTemplate = readFileSync(robloxContextfilePath, 'utf-8');
     }
 
+    async askAthena(params : AthenaParams) {
 
-    async askAthena(question: string, topK: number) {
+        const {question , history , topK} = params;
 
-        const releventDocs = await this.vectorService.hybridSearch(question, topK);
+        let queryOptimize = question;
+        console.log('question : ' + queryOptimize);
+
+        if(history.trim() !== ""){
+            queryOptimize = await this.queryOptimizer(history , question);
+        }
+
+        console.log('question after optimize: ' + queryOptimize);
+        const releventDocs = await this.vectorService.hybridSearch(queryOptimize, topK);
+
+        const result = await this.finalResponse(question , releventDocs);
+
+        await this.chatService.saveAthenaChat(question, result, releventDocs);
+
+        return {
+            answer: result,
+            sources: releventDocs.map(doc => doc.metadata?.source) || 'ATHENA-GUIDE'
+        }
+    }
+
+    private async queryOptimizer(history : string , question : string){
+
+        const llm = this.ilmuChatService.getLightLlm();
+
+        const template = this.queryOptimizerTemplate + `
+            History : {history},
+            Question : {question}
+        `;
+
+        const customPrompt = PromptTemplate.fromTemplate(template);
+
+        
+        const condesedChain = RunnableSequence.from([
+            customPrompt,
+            llm,
+            new StringOutputParser()
+        ])
+
+        const answer = await condesedChain.invoke({
+            history : history,
+            question : question
+        })
+
+        return answer;
+
+    }
+
+    private async finalResponse(question : string , releventDocs : any[]){
 
         const template = this.athenaTemplate + `
 
-            Context: {context}
-            Question: {question}
+            Context: {{context}}
+            Question: {{question}}
 
             Answer:
         `;
 
-        const customPrompt = PromptTemplate.fromTemplate(template);
+        // Explicitly switch to mustache format
+        const customPrompt = new PromptTemplate({
+            template: template,
+            inputVariables: ["context", "question"],
+            templateFormat: "mustache"
+        });
+
         const geminiModel = this.googleService.getLlm();
         const ilmuModel = this.ilmuChatService.getLlm();
 
@@ -66,12 +133,8 @@ export class QuestionsService {
             docs: releventDocs
         });
 
-        await this.chatService.saveAthenaChat(question, result, releventDocs);
+        return result;
 
-        return {
-            answer: result,
-            sources: releventDocs.map(doc => doc.metadata?.source) || 'ATHENA-GUIDE'
-        }
     }
 
     async askRobloxAthena(question: string, topK: number, availableEmotes: string[]) {

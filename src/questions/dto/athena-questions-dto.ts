@@ -2,6 +2,7 @@
 
 export class AthenaQuestionsDto{
 
-    question : string;
-    top_k : number;
+    question! : string;
+    history! : string;
+    top_k! : number;
 }
