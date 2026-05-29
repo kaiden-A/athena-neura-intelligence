@@ -92,14 +92,21 @@ export class VectorService implements OnModuleInit{
 
         // 2. Get Keyword (BM25-like) Results via Postgres Full-Text Search
         // Note: You'll need to use your pool to query the text index directly
-        const keywordString = analysis.keywords.join(' | ');
+        const keywordString = analysis.keywords
+            .map(k => k.trim())
+            .filter(Boolean)
+            .join(' | ');
+            
+        if (!keywordString) {
+            return vectorResults.slice(0, topK);
+        }
+
         const keywordQuery = `
-                SELECT id, content, metadata 
-                FROM athena_vectors
-                WHERE to_tsvector('english', content) @@ plainto_tsquery('english', $1)
-                OR (metadata->'keywords')::jsonb ?| $2
-                LIMIT $3;
-            `;
+            SELECT id, content, metadata 
+            FROM athena_vectors
+            WHERE plainto_tsquery('english', $1) @@ to_tsvector('english', content)
+            LIMIT $2;
+        `;
 
         const keywordRes = await this.neonService.pool.query(keywordQuery , [keywordString , analysis.keywords , topK * 2]);
         const keywordResults = keywordRes.rows;
@@ -109,7 +116,7 @@ export class VectorService implements OnModuleInit{
         
         // Rank Vector Results
         vectorResults.forEach((doc, index) => {
-            const id = doc.metadata.id || doc.pageContent; // Use a unique identifier
+            const id = doc.metadata?.sql_id ?? doc.metadata?.id ?? doc.pageContent.slice(0, 100);; // Use a unique identifier
             const score = 1 / (k + (index + 1));
             scores.set(id, { doc, score });
         });

@@ -37,32 +37,40 @@ export class QaService {
         })
 
         const topicName = await this.topicService.findTopicById(topicId);
-        const contextPrefix = `Program/Organization: Motion-U\nTopic: ${topicName}\n`;
 
         const metadata = await this.metadataService.generateMetadata(topicName , question , answer);
 
+        // Build keyword-enriched content for better embedding surface
+        const keywordLine = metadata?.keywords?.length
+        ? `Keywords: ${metadata.keywords.join(', ')}`
+        : '';
+
         const doc = new Document({
-            // ONLY the question goes here for embedding accuracy
-            pageContent: `${contextPrefix}\nQuestion: ${question}\nAnswer: ${answer}`, 
+            pageContent: [
+                `Topic: ${topicName}`,
+                `Question: ${question}`,
+                `Answer: ${answer}`,
+                keywordLine
+            ].filter(Boolean).join('\n'),
+
             metadata: {
                 ...metadata,
-                sql_id : sqlRecord.id,
+                sql_id: sqlRecord.id,
                 original_question: question,
-                original_answer: answer, 
+                original_answer: answer,
                 created_at: new Date().toISOString(),
                 visibility: visibility,
             }
         });
-
+        
         try{
-
-            if(visibility === 'public'){
-                await this.vectorService.athenaSave([doc] , [String(sqlRecord.id)]);
-            }else{
-                await this.vectorService.neuraSave([doc] , [String(sqlRecord.id)])
+            
+            if (visibility === 'public') {
+                await this.vectorService.athenaSave([doc], [String(sqlRecord.id)]);
+            } else {
+                await this.vectorService.neuraSave([doc], [String(sqlRecord.id)]);
             }
         
-
             return { 
                 status : 'success',
                 id :  sqlRecord.id,

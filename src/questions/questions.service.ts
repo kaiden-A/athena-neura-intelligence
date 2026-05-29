@@ -51,17 +51,19 @@ export class QuestionsService {
         if(history.trim() !== ""){
             queryOptimize = await this.queryOptimizer(history , question);
         }
-
         
         const releventDocs = await this.vectorService.hybridSearch(queryOptimize, topK);
 
         const result = await this.finalResponse(question , releventDocs);
 
-        await this.chatService.saveAthenaChat(question, result, releventDocs);
+        const FALLBACK_MSG = "I'm sorry, I'm having trouble responding right now. Please try again in a moment.";
+        if (!result.startsWith(FALLBACK_MSG)) {
+            await this.chatService.saveAthenaChat(question, result, releventDocs);
+        }
 
         return {
             answer: result,
-            sources: releventDocs.map(doc => doc.metadata?.source) || 'ATHENA-GUIDE'
+            sources: releventDocs
         }
     }
 
@@ -94,45 +96,52 @@ export class QuestionsService {
 
     private async finalResponse(question : string , releventDocs : any[]){
 
-        const template = this.athenaTemplate + `
+        try{
+            const template = this.athenaTemplate + `
 
-            Context: {{context}}
-            Question: {{question}}
+                Context: {{context}}
+                Question: {{question}}
 
-            Answer:
-        `;
+                Answer:
+            `;
 
-        // Explicitly switch to mustache format
-        const customPrompt = new PromptTemplate({
-            template: template,
-            inputVariables: ["context", "question"],
-            templateFormat: "mustache"
-        });
+            // Explicitly switch to mustache format
+            const customPrompt = new PromptTemplate({
+                template: template,
+                inputVariables: ["context", "question"],
+                templateFormat: "mustache"
+            });
 
-        const geminiModel = this.googleService.getLlm();
-        const ilmuModel = this.ilmuChatService.getLlm();
+            const geminiModel = this.googleService.getLlm();
+            const ilmuModel = this.ilmuChatService.getLlm();
 
-        const chain = RunnableSequence.from([
-            {
+            const chain = RunnableSequence.from([
+                {
 
-                context: (input: { docs: any[]; question: string }) =>
-                    input.docs.map(doc => doc.pageContent || doc.text).join("\n\n"),
+                    context: (input: { docs: any[]; question: string }) =>
+                        input.docs.map(doc => doc.pageContent || doc.text).join("\n\n"),
 
 
-                question: (input: { docs: any[]; question: string }) => input.question,
-            },
+                    question: (input: { docs: any[]; question: string }) => input.question,
+                },
 
-            customPrompt,
-            ilmuModel,
-            new StringOutputParser()
-        ])
+                customPrompt,
+                ilmuModel,
+                new StringOutputParser()
+            ])
 
-        const result = await chain.invoke({
-            question: question,
-            docs: releventDocs
-        });
+            const result = await chain.invoke({
+                question: question,
+                docs: releventDocs
+            });
 
-        return result;
+            return result;
+
+
+        }catch(err){
+            console.error('LLM chain failed:', err);
+            return "I'm sorry, I'm having trouble responding right now. Please try again in a moment.";
+        }
 
     }
 
