@@ -28,6 +28,7 @@ export class TopicsRepository{
     async getAll(){
         const query = `
         SELECT 
+            id AS topicId
             name , 
             description , 
             created_by AS createdBy    
