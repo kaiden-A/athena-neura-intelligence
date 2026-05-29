@@ -108,7 +108,7 @@ export class VectorService implements OnModuleInit{
             LIMIT $2;
         `;
 
-        const keywordRes = await this.neonService.pool.query(keywordQuery , [keywordString , analysis.keywords , topK * 2]);
+        const keywordRes = await this.neonService.pool.query(keywordQuery , [keywordString , topK * 2]);
         const keywordResults = keywordRes.rows;
 
         //apply the Reciprocal Rank Fusion
