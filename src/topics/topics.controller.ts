@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards , Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards , Req } from '@nestjs/common';
 import { CreateTopicDto } from './dto/create-topic.dto';
 import { TopicsService } from './topics.service';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -8,6 +8,11 @@ export class TopicsController {
 
 
     constructor(private readonly topicService : TopicsService){}
+
+    @Get()
+    async getAllTopics(){
+        return this.topicService.getAllTopics();
+    }
 
     @UseGuards(AuthGuard)
     @Post()

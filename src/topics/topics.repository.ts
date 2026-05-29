@@ -25,6 +25,17 @@ export class TopicsRepository{
         return  res[0];
     }
 
+    async getAll(){
+        const query = `
+        SELECT 
+            name , 
+            description , 
+            created_by AS createdBy    
+        FROM TOPICS ORDER BY created_at DESC`;
+        const res = await this.neonService.pool.query(query);
+        return res.rows;
+    }
+
     async findById(id : string){
 
         const query = `

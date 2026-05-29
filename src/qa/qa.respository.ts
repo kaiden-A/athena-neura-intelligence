@@ -23,14 +23,17 @@ export class QaRepository{
         return res.rows[0];
     }
 
-    async getAll(){
+    async getAll(topicId?: string){
 
-        const query = `
-            SELECT *
-            FROM qa
-        `;
+        let query = `SELECT * FROM qa`;
+        const values: string[] = [];
 
-        const res = await this.neonService.pool.query(query);
+        if (topicId) {
+            query += ` WHERE topic_id = $1`;
+            values.push(topicId);
+        }
+
+        const res = await this.neonService.pool.query(query, values);
         return res.rows;
 
     }

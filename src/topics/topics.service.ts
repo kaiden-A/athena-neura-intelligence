@@ -27,6 +27,10 @@ export class TopicsService {
         }
     }
 
+    async getAllTopics(){
+        return this.topicRepo.getAll();
+    }
+
     async findTopicById(id : string){
 
         const topic = await this.topicRepo.findById(id);

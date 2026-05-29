@@ -84,8 +84,8 @@ export class QaService {
         
     }
 
-    async getQuestionAnswer(){
-        return this.qaRepository.getAll();
+    async getQuestionAnswer(topicId?: string){
+        return this.qaRepository.getAll(topicId);
     }
 
 }

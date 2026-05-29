@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards , Body , Req, Get } from '@nestjs/common';
+import { Controller, Post, UseGuards , Body , Req, Get, Query } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import type { Request } from 'express';
 import { qaDto } from './dto/create-qa-controller.dto';
@@ -30,9 +30,9 @@ export class QaController {
 
     @Get()
     async getQa(
-
+        @Query('topicId') topicId?: string
     ){
-        return this.qaService.getQuestionAnswer();
+        return this.qaService.getQuestionAnswer(topicId);
     }
 
 }
