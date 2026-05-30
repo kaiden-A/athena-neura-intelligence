@@ -23,6 +23,18 @@ export class QaRepository{
         return res.rows[0];
     }
 
+    async findById(id: string){
+        const query = `SELECT * FROM qa WHERE id = $1`;
+        const res = await this.neonService.pool.query(query, [id]);
+        return res.rows[0] || null;
+    }
+
+    async delete(id: string){
+        const query = `DELETE FROM qa WHERE id = $1 RETURNING *`;
+        const res = await this.neonService.pool.query(query, [id]);
+        return res.rows[0] || null;
+    }
+
     async getAll(topicId?: string){
 
         let query = `SELECT * FROM qa`;

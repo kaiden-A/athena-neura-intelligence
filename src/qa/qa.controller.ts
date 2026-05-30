@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards , Body , Req, Get, Query } from '@nestjs/common';
+import { Controller, Post, UseGuards , Body , Req, Get, Query, Delete, Param } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import type { Request } from 'express';
 import { qaDto } from './dto/create-qa-controller.dto';
@@ -33,6 +33,14 @@ export class QaController {
         @Query('topicId') topicId?: string
     ){
         return this.qaService.getQuestionAnswer(topicId);
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete(':id')
+    async deleteQa(
+        @Param('id') id: string
+    ){
+        return this.qaService.deleteQa(id);
     }
 
 }

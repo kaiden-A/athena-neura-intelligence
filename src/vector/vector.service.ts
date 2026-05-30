@@ -70,6 +70,10 @@ export class VectorService implements OnModuleInit{
         await this.athenaStore.delete({ids : [id]});
     }
 
+    async deleteFromNeura(id: string){
+        await this.neuraStore.delete({ids: [id]});
+    }
+
     async neuraSave(docs: any[] , ids? : string[]) {
         return this.neuraStore.addDocuments(docs , {ids});
     }

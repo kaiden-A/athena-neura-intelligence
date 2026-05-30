@@ -88,4 +88,29 @@ export class QaService {
         return this.qaRepository.getAll(topicId);
     }
 
+    async deleteQa(id: string){
+        const record = await this.qaRepository.findById(id);
+        if (!record) {
+            return { status: 'error', message: 'QA record not found' };
+        }
+
+        try {
+            if (record.visibility === 'public') {
+                await this.vectorService.deleteFromAthena(String(record.id));
+            } else {
+                await this.vectorService.deleteFromNeura(String(record.id));
+            }
+        } catch (error) {
+            console.error('Error deleting from Vector Store: ' + error);
+            throw error;
+        }
+
+        await this.qaRepository.delete(id);
+
+        return {
+            status: 'success',
+            message: 'QA has been deleted from vector db'
+        };
+    }
+
 }
