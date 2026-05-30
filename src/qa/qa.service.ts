@@ -88,6 +88,79 @@ export class QaService {
         return this.qaRepository.getAll(topicId);
     }
 
+    async updateQa(params : {
+        id: string,
+        topicId : string,
+        question : string,
+        answer : string,
+        visibility : string
+    }){
+        const {id, question, answer, topicId, visibility} = params;
+
+        const existing = await this.qaRepository.findById(id);
+        if (!existing) {
+            return { status: 'error', message: 'QA record not found' };
+        }
+
+        try {
+            if (existing.visibility === 'public') {
+                await this.vectorService.deleteFromAthena(String(existing.id));
+            } else {
+                await this.vectorService.deleteFromNeura(String(existing.id));
+            }
+        } catch (error) {
+            console.error('Error deleting old vector: ' + error);
+            throw error;
+        }
+
+        const topicName = await this.topicService.findTopicById(topicId);
+        const metadata = await this.metadataService.generateMetadata(topicName, question, answer);
+
+        const keywordLine = metadata?.keywords?.length
+            ? `Keywords: ${metadata.keywords.join(', ')}`
+            : '';
+
+        const doc = new Document({
+            pageContent: [
+                `Topic: ${topicName}`,
+                `Question: ${question}`,
+                `Answer: ${answer}`,
+                keywordLine
+            ].filter(Boolean).join('\n'),
+            metadata: {
+                ...metadata,
+                sql_id: existing.id,
+                original_question: question,
+                original_answer: answer,
+                created_at: new Date().toISOString(),
+                visibility: visibility,
+            }
+        });
+
+        const assistant = visibility === 'public' ? 'athena' : 'neura';
+
+        try {
+            if (visibility === 'public') {
+                await this.vectorService.athenaSave([doc], [String(existing.id)]);
+            } else {
+                await this.vectorService.neuraSave([doc], [String(existing.id)]);
+            }
+        } catch (error) {
+            console.error('Error saving updated vector: ' + error);
+            throw error;
+        }
+
+        await this.qaRepository.update(id, {
+            topicId, question, answer, visibility, assistant
+        });
+
+        return {
+            status: 'success',
+            id: existing.id,
+            message: 'QA has been updated'
+        };
+    }
+
     async deleteQa(id: string){
         const record = await this.qaRepository.findById(id);
         if (!record) {

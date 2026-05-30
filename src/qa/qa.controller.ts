@@ -1,7 +1,8 @@
-import { Controller, Post, UseGuards , Body , Req, Get, Query, Delete, Param } from '@nestjs/common';
+import { Controller, Post, UseGuards , Body , Req, Get, Query, Delete, Param, Put } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import type { Request } from 'express';
 import { qaDto } from './dto/create-qa-controller.dto';
+import { updateQaDto } from './dto/update-qa-controller.dto';
 import { QaService } from './qa.service';
 @Controller('qa')
 export class QaController {
@@ -33,6 +34,21 @@ export class QaController {
         @Query('topicId') topicId?: string
     ){
         return this.qaService.getQuestionAnswer(topicId);
+    }
+
+    @UseGuards(AuthGuard)
+    @Put(':id')
+    async updateQa(
+        @Param('id') id: string,
+        @Body() data : updateQaDto
+    ){
+        return this.qaService.updateQa({
+            id,
+            topicId : data.topicId,
+            question : data.question,
+            answer : data.answer,
+            visibility : data.visibility
+        })
     }
 
     @UseGuards(AuthGuard)

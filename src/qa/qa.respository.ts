@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { NeonService } from "src/neon/neon.service";
 import { CreateQaRepo } from "./dto/create-qa-repo.dto";
+import { UpdateQaRepo } from "./dto/update-qa-repo.dto";
 
 
 @Injectable()
@@ -26,6 +27,18 @@ export class QaRepository{
     async findById(id: string){
         const query = `SELECT * FROM qa WHERE id = $1`;
         const res = await this.neonService.pool.query(query, [id]);
+        return res.rows[0] || null;
+    }
+
+    async update(id: string, data: UpdateQaRepo){
+        const query = `
+            UPDATE qa
+            SET topic_id = $1, question = $2, answer = $3, visibility = $4, assistant = $5
+            WHERE id = $6
+            RETURNING *
+        `;
+        const values = [data.topicId, data.question, data.answer, data.visibility, data.assistant, id];
+        const res = await this.neonService.pool.query(query, values);
         return res.rows[0] || null;
     }
 
