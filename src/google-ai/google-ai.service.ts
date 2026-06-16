@@ -18,7 +18,7 @@ export class GoogleAiService {
 
         this.model = new ChatGoogleGenerativeAI({
             apiKey : this.configService.get<string>('GOOGLE_API_KEY'),
-            model : 'gemini-3.5-flash',
+            model : 'gemini-2.5-flash',
             temperature : 0.3
         })
     }
