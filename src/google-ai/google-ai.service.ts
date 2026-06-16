@@ -7,6 +7,7 @@ export class GoogleAiService {
 
     private readonly embeddings : GoogleGenerativeAIEmbeddings;
     private readonly model : ChatGoogleGenerativeAI;
+    private readonly agenticModel : ChatGoogleGenerativeAI;
 
     constructor(private configService : ConfigService){
 
@@ -19,6 +20,12 @@ export class GoogleAiService {
         this.model = new ChatGoogleGenerativeAI({
             apiKey : this.configService.get<string>('GOOGLE_API_KEY'),
             model : 'gemini-2.5-flash',
+            temperature : 0.3
+        })
+
+        this.agenticModel = new ChatGoogleGenerativeAI({
+            apiKey : this.configService.get<string>('GOOGLE_API_KEY'),
+            model : 'gemini-3.5-flash',
             temperature : 0.3
         })
     }

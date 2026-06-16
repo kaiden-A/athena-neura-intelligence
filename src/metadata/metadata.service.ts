@@ -50,7 +50,7 @@ export class MetadataService {
             )
 
             const parser = new JsonOutputParser<MetadataOutput>();
-            const chain = prompt.pipe(ilmuLlm).pipe(parser);
+            const chain = prompt.pipe(googleLlm).pipe(parser);
 
 
             const result = await chain.invoke({
