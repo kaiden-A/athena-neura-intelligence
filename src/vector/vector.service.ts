@@ -152,7 +152,7 @@ export class VectorService implements OnModuleInit{
         const ilmuModel = this.ilmuService.getLlm();
 
         const chain = analysisPrompt
-            .pipe(ilmuModel)
+            .pipe(geminiModel)
             .pipe(new StringOutputParser());
 
         const response = await chain.invoke({ query });

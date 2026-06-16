@@ -69,7 +69,7 @@ export class QuestionsService {
 
     private async queryOptimizer(history : string , question : string){
 
-        const llm = this.ilmuChatService.getLightLlm();
+        const llm = this.googleService.getLlm();
 
         const template = this.queryOptimizerTemplate + `
             History : {history},
@@ -126,7 +126,7 @@ export class QuestionsService {
                 },
 
                 customPrompt,
-                ilmuModel,
+                geminiModel,
                 new StringOutputParser()
             ])
 
