@@ -36,6 +36,11 @@ export class QaController {
         return this.qaService.getQuestionAnswer(topicId);
     }
 
+    @Get(':id')
+    async getQaById(@Param('id') id: string){
+        return this.qaService.getQaById(id);
+    }
+
     @UseGuards(AuthGuard)
     @Put(':id')
     async updateQa(

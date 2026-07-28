@@ -88,6 +88,14 @@ export class QaService {
         return this.qaRepository.getAll(topicId);
     }
 
+    async getQaById(id: string){
+        const record = await this.qaRepository.findById(id);
+        if (!record) {
+            return { status: 'error', message: 'QA record not found' };
+        }
+        return record;
+    }
+
     async updateQa(params : {
         id: string,
         topicId : string,
