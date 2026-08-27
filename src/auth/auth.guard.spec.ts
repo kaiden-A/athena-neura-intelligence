@@ -87,5 +87,6 @@ describe('AuthGuard', () => {
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
     expect(request.user?.sub).toBe('user-1');
+    expect(request.user?.id).toBe('user-1');
   });
 });
