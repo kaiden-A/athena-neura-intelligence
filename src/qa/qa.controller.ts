@@ -36,9 +36,11 @@ export class QaController {
         })
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'List all QAs', description: 'Returns all QA records, optionally filtered by topicId' })
     @ApiQuery({ name: 'topicId', required: false, description: 'Filter by topic ID' })
     @ApiResponse({ status: 200, description: 'List of QA records' })
+    @UseGuards(AuthGuard)
     @Get()
     async getQa(
         @Query('topicId') topicId?: string
@@ -46,10 +48,12 @@ export class QaController {
         return this.qaService.getQuestionAnswer(topicId);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get QA by ID', description: 'Returns a single QA record by its ID' })
     @ApiParam({ name: 'id', description: 'QA record ID' })
     @ApiResponse({ status: 200, description: 'QA record found' })
     @ApiResponse({ status: 404, description: 'QA record not found' })
+    @UseGuards(AuthGuard)
     @Get(':id')
     async getQaById(@Param('id') id: string){
         return this.qaService.getQaById(id);

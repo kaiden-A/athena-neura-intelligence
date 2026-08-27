@@ -15,8 +15,12 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return the health payload', () => {
+      expect(appController.getHello()).toEqual({
+        message: 'RAG API SERVICE IS WORKING!',
+        athena: 'HII How Are You!!',
+        neura: 'Where Have You Been?',
+      });
     });
   });
 });

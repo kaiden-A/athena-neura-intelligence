@@ -4,17 +4,11 @@ import { TopicsController } from './topics.controller';
 import { NeonModule } from 'src/neon/neon.module';
 import { TopicsRepository } from './topics.repository';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { PrismaModule } from 'src/prisma/prisma.module';
-import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports : [NeonModule , JwtModule],
-  providers: [
-    TopicsService , 
-    TopicsRepository,
-    AuthGuard
-  ],
+  imports: [NeonModule],
+  providers: [TopicsService, TopicsRepository, AuthGuard],
   controllers: [TopicsController],
-  exports : [TopicsService]
+  exports: [TopicsService],
 })
 export class TopicsModule {}

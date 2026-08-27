@@ -12,8 +12,10 @@ export class TopicsController {
 
     constructor(private readonly topicService : TopicsService){}
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'List all topics', description: 'Returns all topics' })
     @ApiResponse({ status: 200, description: 'List of topics' })
+    @UseGuards(AuthGuard)
     @Get()
     async getAllTopics(){
         return this.topicService.getAllTopics();

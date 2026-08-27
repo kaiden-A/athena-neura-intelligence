@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import { IlmuchatService } from './ilmuchat.service';
 
 describe('IlmuchatService', () => {
@@ -6,6 +7,7 @@ describe('IlmuchatService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ isGlobal: true })],
       providers: [IlmuchatService],
     }).compile();
 
